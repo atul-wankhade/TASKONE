@@ -3,13 +3,19 @@ package middleware
 import (
 	"TASKONE/config"
 	"TASKONE/utils"
+	"context"
 	"net/http"
 	"strings"
 
 	"github.com/golang-jwt/jwt"
 )
 
+type ctxKey string
+
+var UserIDKey ctxKey = "userID"
+
 func AuthMiddleware(next http.Handler) http.Handler {
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader == "" {
@@ -27,7 +33,7 @@ func AuthMiddleware(next http.Handler) http.Handler {
 		secret := []byte(config.AppConfig.JWTSecret)
 
 		token, err := jwt.Parse(tokenstr, func(token *jwt.Token) (interface{}, error) {
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			if token.Method != jwt.SigningMethodHS256 {
 				return nil, jwt.ErrInvalidKey
 			}
 			return secret, nil
@@ -37,6 +43,16 @@ func AuthMiddleware(next http.Handler) http.Handler {
 			utils.JSONResponse(w, http.StatusUnauthorized, map[string]string{"Error": "Invalid token"})
 			return
 		}
-		next.ServeHTTP(w, r)
+
+		if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+			//expaect sub claims as integer , we stored it as int
+			if sub, ok := claims["sub"].(float64); ok {
+				uid := int(sub)
+				ctx := context.WithValue(r.Context(), UserIDKey, uid)
+				next.ServeHTTP(w, r.WithContext(ctx))
+				return
+			}
+		}
+		utils.JSONResponse(w, http.StatusUnauthorized, map[string]string{"err:": "Invalid token claims"})
 	})
 }
