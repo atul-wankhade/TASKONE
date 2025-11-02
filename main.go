@@ -1,3 +1,21 @@
+// @title TaskOne REST API
+// @version 1.0
+// @description This is the TaskOne API microservice built in Go.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.taskone.io/support
+// @contact.email support@taskone.io
+
+// @license.name MIT
+// @license.url https://opensource.org/licenses/MIT
+
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 package main
 
 import (
@@ -17,8 +35,11 @@ import (
 	chiMiddleware "github.com/go-chi/chi/v5/middleware"
 	"go.uber.org/zap"
 
+	_ "TASKONE/docs" // Swagger generated docs
+
 	"github.com/go-chi/chi"
 	_ "github.com/go-sql-driver/mysql"
+	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 func main() {
@@ -44,6 +65,9 @@ func main() {
 	r.Use(chiMiddleware.RealIP)
 	r.Use(chiMiddleware.Logger)
 	r.Use(chiMiddleware.Recoverer)
+
+	//swagger documentation route
+	r.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	//create login handler
 	r.Post("/login", authController.LoginHandler)

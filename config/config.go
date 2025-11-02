@@ -9,16 +9,16 @@ import (
 )
 
 type Config struct {
-	Port          string
-	JWTSecret     string
-	MySQLDSN      string
-	MongoURI      string
-	MongoDB       string
-	MySQLUser     string
-	MySQLPassword string
-	MySQLHost     string
-	MySQLPort     string
-	MySQLDB       string
+	Port          string `mapstructure:"PORT"`
+	JWTSecret     string `mapstructure:"JWT_SECRET"`
+	MySQLDSN      string `mapstructure:"MYSQL_DSN"`
+	MongoURI      string `mapstructure:"MONGO_URI"`
+	MongoDB       string `mapstructure:"MONGO_DB"`
+	MySQLUser     string `mapstructure:"MYDQL_USER"`
+	MySQLPassword string `mapstructure:"MYSQL_PASSWORD"`
+	MySQLHost     string `mapstructure:"MYSQL_HOST"`
+	MySQLPort     string `mapstructure:"MYSQL_PORT"`
+	MySQLDB       string `mapstructure:"MYSQL_DB"`
 }
 
 var AppConfig *Config
@@ -45,12 +45,14 @@ func LoadConfig() {
 		MySQLDB:       viper.GetString("MYSQL_DB"),
 	}
 
+	log.Printf("Loaded Config: %+v", AppConfig)
+
 	if AppConfig.Port == "" || AppConfig.JWTSecret == "" {
 		log.Fatal("Required environment variables are missing.")
 		os.Exit(1)
 	}
 
-	if AppConfig.MongoDB == "" || AppConfig.MySQLDSN == "" || AppConfig.MongoURI == "" {
+	if AppConfig.MongoDB == "" || AppConfig.MongoURI == "" {
 		log.Fatal("Missing DB Config.")
 		os.Exit(1)
 	}

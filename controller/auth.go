@@ -37,6 +37,16 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
+// LoginHandler godoc
+// @Summary Login a user
+// @Description Authenticate user and return JWT token
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param credentials body LoginRequest true "Login credentials"
+// @Success 200 {object} map[string]string
+// @Failure 401 {object} map[string]string
+// @Router /login [post]
 func (a *AuthController) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		utils.JSONResponse(w, http.StatusMethodNotAllowed, map[string]string{"Error": "Method not allowed"})
@@ -93,6 +103,16 @@ type registerReq struct {
 	Password string `json:"password" validate:"required,min=6"`
 }
 
+// RegisterHandler godoc
+// @Summary Register a new user
+// @Description Create a new user account
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Param user body model.User true "User registration data"
+// @Success 200 {object} map[string]string
+// @Failure 400 {object} map[string]string
+// @Router /register [post]
 func (a *AuthController) RegisterHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		utils.JSONResponse(w, http.StatusMethodNotAllowed, map[string]string{"err": "Method Not Allowed"})
